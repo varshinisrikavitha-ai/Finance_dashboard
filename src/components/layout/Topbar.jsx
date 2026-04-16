@@ -1,10 +1,12 @@
-import { MoonStar, Plus, Settings2, SunMedium, UserCircle2, Eye } from 'lucide-react';
+import { Eye, LogOut, MoonStar, Plus, SunMedium, UserCircle2 } from 'lucide-react';
 import { Button } from '../ui/Button';
 import { Badge } from '../ui/Badge';
 import { useFinance } from '../../context/FinanceContext';
+import { useAuth } from '../../context/AuthContext';
 
 export function Topbar() {
-  const { state, toggleDarkMode, setRole, canManageTransactions, openEditor } = useFinance();
+  const { state, toggleDarkMode, canManageTransactions, openEditor } = useFinance();
+  const { user, logout } = useAuth();
 
   return (
     <header className="sticky top-4 z-40 mx-4 rounded-3xl border border-slate-200/80 bg-white/82 px-4 py-3 shadow-[0_18px_40px_rgba(15,23,42,0.08)] backdrop-blur-xl dark:border-slate-800/90 dark:bg-slate-950/78 sm:mx-6 xl:mx-10 xl:px-6">
@@ -22,26 +24,10 @@ export function Topbar() {
         </div>
 
         <div className="flex w-full flex-wrap items-center justify-start gap-2 lg:w-auto lg:justify-end">
-          <div className="flex w-full items-center justify-center gap-1 rounded-full border border-slate-200/80 bg-slate-50/85 p-1 dark:border-slate-700 dark:bg-slate-900/60 sm:w-auto sm:justify-start">
-            {['admin', 'viewer'].map((role) => (
-              <button
-                key={role}
-                type="button"
-                onClick={() => setRole(role)}
-                className={`flex flex-1 items-center justify-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-bold uppercase tracking-[0.08em] transition-all sm:flex-none ${
-                  state.role === role
-                    ? 'bg-cyan-400 text-slate-950 shadow-sm'
-                    : 'text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white'
-                }`}
-              >
-                {role === 'admin' ? (
-                  <UserCircle2 className="h-4 w-4" />
-                ) : (
-                  <Eye className="h-4 w-4" />
-                )}
-                <span>{role}</span>
-              </button>
-            ))}
+          <div className="inline-flex items-center gap-2 rounded-full border border-slate-200/80 bg-slate-50/85 px-3 py-2 dark:border-slate-700 dark:bg-slate-900/60">
+            <Badge tone={canManageTransactions ? 'warning' : 'info'} className="uppercase tracking-[0.08em]">
+              {state.role}
+            </Badge>
           </div>
           
           <Button
@@ -78,9 +64,20 @@ export function Topbar() {
             </div>
             <div className="hidden pr-2 text-left sm:block">
               <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-500 dark:text-slate-400">Profile</p>
-              <p className="text-sm font-bold text-slate-900 dark:text-white">{canManageTransactions ? 'Zorvyn Admin' : 'Zorvyn Viewer'}</p>
+              <p className="text-sm font-bold text-slate-900 dark:text-white">{user?.name || 'Zorvyn User'}</p>
+              <p className="text-xs font-medium text-slate-500 dark:text-slate-400">{user?.email || 'local@zorvyn.app'}</p>
             </div>
           </div>
+
+          <Button
+            variant="secondary"
+            onClick={logout}
+            className="gap-1.5"
+            title="Log out"
+          >
+            <LogOut className="h-4 w-4" />
+            <span className="hidden sm:inline">Logout</span>
+          </Button>
         </div>
       </div>
     </header>

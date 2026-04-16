@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useMemo, useReducer } from 'react';
 import { initialTransactions, openingBalance } from '../data/mockData';
 import { buildBalanceTimeline, buildCategoryBreakdown, buildInsights, buildMonthlyComparison, calculateSummary, filterTransactions, getUniqueCategories, normalizeTransactions } from '../utils/finance';
+import { useAuth } from './AuthContext';
 import { loadStoredState, saveStoredState } from '../utils/storage';
 
 const FinanceContext = createContext(null);
@@ -88,11 +89,16 @@ function financeReducer(state, action) {
 
 export function FinanceProvider({ children }) {
   const [state, dispatch] = useReducer(financeReducer, initialState);
+  const { user } = useAuth();
 
   useEffect(() => {
     const timer = window.setTimeout(() => dispatch({ type: 'finish-booting' }), 700);
     return () => window.clearTimeout(timer);
   }, []);
+
+  useEffect(() => {
+    dispatch({ type: 'set-role', role: user?.role ?? 'viewer' });
+  }, [user?.role]);
 
   useEffect(() => {
     document.documentElement.classList.toggle('dark', state.darkMode);
